@@ -31,7 +31,7 @@ Common prefixes include:
 
 Other current prefixes include:
 
-- `ac-`, `audio-`, `battery-`, `branch-`, `brightness-`, `channel-`, `config-`, `debug-`, `dev-`, `drive-`, `first-`, `font-`, `haptic-`, `hibernation-`, `hook-`, `hyprland-`, `menu-`, `migrate-`, `notification-`, `npx-`, `plymouth-`, `powerprofiles-`, `reinstall-`, `remove-`, `screensaver-`, `show-`, `snapshot-`, `state-`, `sudo-`, `swayosd-`, `system-`, `transcode-`, `tui-`, `tz-`, `upload-`, `version-`, `voxtype-`, `webapp-`, `wifi-`, `windows-`
+- `ac-`, `audio-`, `battery-`, `branch-`, `brightness-`, `channel-`, `config-`, `debug-`, `dev-`, `drive-`, `first-`, `font-`, `haptic-`, `hibernation-`, `hook-`, `hyprland-`, `menu-`, `migrate-`, `notification-`, `npx-`, `plymouth-`, `powerprofiles-`, `reinstall-`, `remove-`, `screensaver-`, `show-`, `snapshot-`, `state-`, `sudo-`, `swayosd-`, `system-`, `transcode-`, `tui-`, `tz-`, `upgrade-`, `upload-`, `version-`, `voxtype-`, `webapp-`, `wifi-`, `windows-`
 
 # Command Metadata
 
@@ -82,6 +82,8 @@ Use these instead of raw shell commands:
 - `omarchy-cmd-missing` / `omarchy-cmd-present` - check for commands
 - `omarchy-pkg-missing` / `omarchy-pkg-present` - check for packages
 - `omarchy-pkg-add` - install packages (handles both pacman and AUR)
+- `omarchy-pkg-drop` - remove packages; use this instead of raw `pacman -R*`
+- `omarchy-notification-send` - send desktop notifications; do not call `notify-send` directly
 - `omarchy-hw-asus-rog` - detect ASUS ROG hardware (and similar `hw-*` commands)
 
 Exceptions are allowed for bootstrap, preflight, migration, and package-helper scripts where the helper may not be available yet, where the helper itself is being implemented, or where direct package-manager behavior is required.
@@ -91,6 +93,14 @@ Exceptions are allowed for bootstrap, preflight, migration, and package-helper s
 - `config/` - default configs copied to `~/.config/`
 - `default/themed/*.tpl` - templates with `{{ variable }}` placeholders for theme colors
 - `themes/*/colors.toml` - theme color definitions (accent, background, foreground, color0-15)
+
+# Visual Changes
+
+When making visual changes, such as Waybar styles or desktop appearance, always take and analyze a screenshot after applying the change to verify the result. Use `omarchy capture screenshot fullscreen save` for fullscreen screenshots.
+
+For interactive UI work, use `wtype` to simulate keyboard input when available. Example: start the UI in the background, wait briefly for focus, then run `wtype -k Right -k Return` to exercise keyboard selection and confirm the resulting command output or state change. Prefer this over manual-only verification when a UI returns a selected value or changes a symlink/config.
+
+When testing layer-shell UI, capture the reference and candidate states as separate screenshots, then compare them visually before further edits. If a launched UI would otherwise remain open, keep track of its PID and stop it after the screenshot; avoid broad process kills unless checking with `ps` first.
 
 # Refresh Pattern
 
@@ -107,6 +117,7 @@ This copies `~/.local/share/omarchy/config/hypr/hyprlock.conf` to `~/.config/hyp
 To create a new migration, run `omarchy-dev-add-migration --no-edit`. This creates a migration file named after the unix timestamp of the last commit.
 
 New migration format:
+- File permissions must be `0644` (`-rw-r--r--`); migrations are sourced, not executed directly
 - No shebang line
 - Start with an `echo` describing what the migration does
 - Use `$OMARCHY_PATH` to reference the omarchy directory
